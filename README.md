@@ -18,5 +18,5 @@ Clone and run this repository you'll need Git and Node.js (which comes with npm)
 
 ## Development server
 
-Run `npm start` for a dev server. Navigate to `http://localhost:4200/`.
+Run npm start for a dev server. Your API is now running on http://localhost:4200/
 
