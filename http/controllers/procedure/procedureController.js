@@ -30,11 +30,20 @@ async function saveProcedureByUser(req, res) {
             procedure_form[i]['user_id'] = user_id;
             procedure_form[i]['no_known_procedures'] = no_known_procedures;
         }
-        await rewardDisperser(
+        [err, rewardDisperserResult] = await utils.to(rewardDisperser(
             rewardEnum.PROCEDUREDOCUMENTREWARD,
             user_id,
             user.tron_wallet_public_key
-        );
+        ));
+
+        if(err){
+            return response.sendResponse(
+                res,
+                resCode.BAD_REQUEST,
+                resMessage.BANDWIDTH_IS_LOW
+            );
+        }
+        
         [err, procedures] = await utils.to(
             db.models.procedures.bulkCreate(procedure_form)
         );
@@ -80,12 +89,23 @@ async function getProcedureListByUser(req, res) {
         [err, result] = await utils.to(
             cutCommission(user.tron_wallet_public_key, 'Health Port Network Fee')
         )
-        if (err) 
-            return response.sendResponse(
-                res,
-                resCode.BAD_REQUEST,
-                resMessage.INSUFFICIENT_BALANCE
-            );
+        if (err) {
+            if(err == 'Bandwidth is low'){
+                return response.sendResponse(
+                    res,
+                    resCode.BAD_REQUEST,
+                    resMessage.BANDWIDTH_IS_LOW
+                );
+            }
+            else {
+                return response.sendResponse(
+                    res,
+                    resCode.BAD_REQUEST,
+                    resMessage.INSUFFICIENT_BALANCE
+                );
+            }
+            
+        }
         
         //Returing successful response with data
         return response.sendResponse(

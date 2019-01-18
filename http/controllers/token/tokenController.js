@@ -35,6 +35,10 @@ async function sendToken(req, res) {
         let bandwidth = await tronUtils.getBandwidth(utils.decrypt(from));
         if (bandwidth < 275) return response.sendResponse(res, resCode.BAD_REQUEST, resMessage.BANDWIDTH_IS_LOW);
 
+        //Checking weather receiver account is active or not.
+        let bandwidthTo = await tronUtils.getBandwidth(to);
+        if(bandwidthTo == 0) return response.sendResponse(res, resCode.BAD_REQUEST, resMessage.ACCOUNT_IS_NOT_ACTIVE)
+        
         //Sending token
         try {
             trxId = await tronUtils.sendTRC10Token(to, amount, privateKey);
@@ -121,7 +125,7 @@ async function sendToken(req, res) {
 async function getBalance(req, res) {
     try {
         let address = utils.encrypt(req.body.address);
-        let err, user, balance;
+        let err, user, balance, bandwidth;
 
         //Finding record from db    
         [err, user] = await utils.to(db.models.users.findOne({ where: { tron_wallet_public_key: address } }));
@@ -131,9 +135,9 @@ async function getBalance(req, res) {
         let privateKey = utils.decrypt(user.tron_wallet_private_key);
         let publickKey = utils.decrypt(user.tron_wallet_public_key);
         balance = await tronUtils.getTRC10TokenBalance(privateKey, publickKey);
-
+        bandwidth = await tronUtils.getBandwidth(utils.decrypt(user.tron_wallet_public_key));
         //Returing successful response with balance
-        return response.sendResponse(res, resCode.SUCCESS, resMessage.SUCCESS, balance);
+        return response.sendResponse(res, resCode.SUCCESS, resMessage.SUCCESS, {balance: balance, bandwidth:bandwidth});
 
     } catch (error) {
         console.log(error);
@@ -257,7 +261,6 @@ async function getReferralsByUser(req, res) {
 async function getEnv(req, res) {
 
     //let transection = await tronUtils.createSmartContract();
-
     return response.sendResponse(res, resCode.SUCCESS, transection);
 }
 

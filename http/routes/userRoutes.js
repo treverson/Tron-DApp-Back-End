@@ -24,7 +24,7 @@ router.post('/getFormSubmissionDates', authorize.authenticateToken, tokenControl
 router.post('/getReferralsByUser', authorize.authenticateToken, tokenController.getReferralsByUser);
 
 
-router.post('/saveAllergyListByUser', allergyController.saveAllergyListByUser);
+router.post('/saveAllergyListByUser', authorize.authenticateToken, allergyController.saveAllergyListByUser);
 router.post('/getAllergyListByUser', authorize.authenticateToken, allergyController.getAllergyListByUser);
 
 router.post('/saveMedicationByUser', authorize.authenticateToken, medicationController.saveMedicationByUser);

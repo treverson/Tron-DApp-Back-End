@@ -30,13 +30,15 @@ async function getTRC10TokenBalance(privateKey, address) {
     try {
         let tronWeb = new TronWeb(fullNode, solidityNode, eventServer, privateKey);
         let account = await tronWeb.trx.getAccount(address);
-        if (account.asset) {
-            for (let i = 0; i < account.asset.length; i++) {
-                if (account.asset[i].key == process.env.TRON_TOKEN_ID)
-                    return account.asset[i].value;
-                break;
+
+        if (account.assetV2) {
+            for (let i = 0; i < account.assetV2.length; i++) {
+                if (account.assetV2[i].key == process.env.TRON_TOKEN_ID) {
+                    return account.assetV2[i].value;
+                }
             }
         }
+
         return 0;
     } catch (error) {
         console.log(error);
@@ -49,7 +51,7 @@ async function sendTRC10Token(to, amount, privateKey) {
         let tronWeb = new TronWeb(fullNode, solidityNode, eventServer, privateKey);
         let transaction = await tronWeb.trx.sendToken(to, amount, process.env.TRON_TOKEN_ID);
         return transaction.transaction.txID;
-
+        
     } catch (error) {
         console.log(error);
         throw error;
@@ -132,7 +134,7 @@ async function getAllergyForm(address) {
         let tronWeb = new TronWeb(fullNode, solidityNode, eventServer, privateKey);
         let tronExecutor = await tronWeb.contract().at(`${process.env.SMART_CONTRACT_ADDRESS}`);
         let getAllergy = await tronExecutor.getAlergyRecords().call();
-        
+
         return getAllergy;
 
     } catch (error) {

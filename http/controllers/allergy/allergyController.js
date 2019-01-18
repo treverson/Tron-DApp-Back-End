@@ -31,11 +31,15 @@ async function saveAllergyListByUser(req, res) {
             allergy_form[i]['user_id'] = user_id;
             allergy_form[i]['no_known_allergies'] = no_known_allergies
         }
-        await rewardDisperser(
-            rewardEnum.ALLERGYDOCUMENTREWARD,
-            user_id,
-            user.tron_wallet_public_key
-        );
+        [err, rewardDisperserResult] = await utils.to(rewardDisperser(rewardEnum.ALLERGYDOCUMENTREWARD, user_id, user.tron_wallet_public_key));
+        if(err){
+            return response.sendResponse(
+                res,
+                resCode.BAD_REQUEST,
+                resMessage.BANDWIDTH_IS_LOW
+            );
+        }
+        
         [err, allergies] = await utils.to(db.models.allergies.bulkCreate(allergy_form));
 
         // Saving allergy form at bloack chain for (let i = 0; i < allergies.length;

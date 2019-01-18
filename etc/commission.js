@@ -20,6 +20,7 @@ async function cutCommission(tron_wallet_public_key, type) {
                 { user_id: user.id, address: utils.encrypt(process.env.COMMISSION_ACCOUNT_ADDRESS_KEY), number_of_token: commissionObj[0].commission_amount, trx_hash: trxId, type: type },
                 { user_id: user.id, address: tron_wallet_public_key, number_of_token: commissionObj[0].commission_amount, trx_hash: trxId, type: type }
             ]));
+            return obj;
         }
     } catch (error) {
         console.log(error);
